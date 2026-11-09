@@ -4,8 +4,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 let users = [
-    { id: 1, name: 'Jan Kowalski' },
-    { id: 2, name: 'Anna Nowak' }
+    { id: 1, name: 'Jan Kowalski', email: 'jan@example.com' },
+    { id: 2, name: 'Anna Nowak', email: 'anna@example.com' }
 ];
 
 app.get('/', (req, res) => {
@@ -91,3 +91,16 @@ app.post('/api/users', (req, res) => {
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
+
+const { body, validationResult } = require('express-validator');
+app.post('/api/users',
+    body('name').trim().notEmpty(),
+    body('email').isEmail(),
+    (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    res.status(201).json(req.body);
+    }
+);
